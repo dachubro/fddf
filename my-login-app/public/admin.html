@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - Add User</title>
+</head>
+<body>
+  <h2>Add User</h2>
+  <form id="addUserForm">
+    <label for="addId">User ID:</label><br />
+    <input type="number" id="addId" name="addId" required /><br /><br />
+
+    <label for="addPassword">Password:</label><br />
+    <input type="number" id="addPassword" name="addPassword" required /><br /><br />
+
+    <label for="expiry">Membership Expiry:</label><br />
+    <input type="datetime-local" id="expiry" name="expiry" required /><br /><br />
+
+    <button type="submit">Add User</button>
+  </form>
+
+  <p id="adminMsg"></p>
+
+  <script>
+    document.getElementById('addUserForm').onsubmit = async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('addId').value;
+      const password = document.getElementById('addPassword').value;
+      const expiryRaw = document.getElementById('expiry').value;
+
+      if (!expiryRaw) {
+        document.getElementById('adminMsg').innerText = 'Please select a valid expiry date and time.';
+        return;
+      }
+
+      // Convert to full ISO 8601 string (UTC)
+      const expiryISO = new Date(expiryRaw).toISOString();
+
+      try {
+        const res = await fetch('/add-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, password, expiry: expiryISO })
+        });
+
+        const text = await res.text();
+        document.getElementById('adminMsg').innerText = text;
+      } catch (err) {
+        document.getElementById('adminMsg').innerText = 'Error: ' + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
